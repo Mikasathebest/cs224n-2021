@@ -76,14 +76,14 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Linear
         ###     Dropout Layer:
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Dropout
-        self.encoder=nn.LSTM(embed_size, hidden_size, bias=True, bidirectional=True)
-        self.decoder=nn.LSTMCell(embed_size+self.hidden_size, self.hidden_size)
-        self.h_projection=nn.Linear(2*self.hidden_size, self.hidden_size, bias=False)
-        self.c_projection=nn.Linear(2*self.hidden_size, self.hidden_size, bias=False)
-        self.att_projection=nn.Linear(2*self.hidden_size, self.hidden_size, bias=False)
-        self.combined_output_projection=nn.Linear(3*self.hidden_size, self.hidden_size, bias=False)
-        self.target_vocab_projection=nn.Linear(self.hidden_size, len(vocab.tgt), bias=False)
-        self.dropout=nn.Dropout(dropout_rate)
+        self.encoder = nn.LSTM(embed_size, hidden_size, bidirectional=True, bias=True)
+        self.decoder = nn.LSTMCell(embed_size+hidden_size, hidden_size)
+        self.h_projection = nn.Linear(hidden_size*2, hidden_size, bias=False)
+        self.c_projection = nn.Linear(hidden_size*2, hidden_size, bias=False)
+        self.att_projection = nn.Linear(hidden_size*2, hidden_size, bias=False)
+        self.combined_output_projection = nn.Linear(hidden_size*3, hidden_size, bias=False)
+        self.target_vocab_projection = nn.Linear(hidden_size, len(vocab.tgt), bias=False)
+        self.dropout = nn.Dropout(dropout_rate)
 
 
 
@@ -190,9 +190,6 @@ class NMT(nn.Module):
         init_decoder_cell = self.c_projection(init_decoder_cell_)
 
         dec_init_state = (init_decoder_hidden, init_decoder_cell)
-
-
-
         ### END YOUR CODE
 
         return enc_hiddens, dec_init_state
@@ -332,7 +329,6 @@ class NMT(nn.Module):
         dec_state = (dec_hidden, dec_cell)
         e_t = enc_hiddens_proj.bmm(dec_hidden.unsqueeze(2))
         e_t.squeeze_()
-
 
         ### END YOUR CODE
 
